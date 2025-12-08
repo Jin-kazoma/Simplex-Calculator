@@ -1,4 +1,4 @@
- function $(id){
+function $(id){
     return document.getElementById(id);
 }
 
@@ -97,11 +97,6 @@ function createTableauHTML(T, basic, nVars, pivotCol, pivotRow, enteringVar, lea
     let rowOrder = [];
     for(let i=0;i<m;i++) rowOrder.push(i);
 
-    // Prefer display order: original variables first (x,y,...) then slacks (s1,s2,...)
-    function isSlack(bIdx){
-        return (typeof bIdx === 'number') && bIdx >= nVars;
-    }
-
     // helper to format decimals for ratios (trim trailing zeros)
     function toDecimal(num){
         if(!isFinite(num)) return "";
@@ -112,16 +107,7 @@ function createTableauHTML(T, basic, nVars, pivotCol, pivotRow, enteringVar, lea
         return s;
     }
 
-    // Build a display order that shows original vars before slacks
-    rowOrder.sort((a,b) => {
-        let A = basic[a];
-        let B = basic[b];
-        let A_isSlack = isSlack(A);
-        let B_isSlack = isSlack(B);
-        if(A_isSlack !== B_isSlack) return A_isSlack ? 1 : -1; // originals first
-        // both same type, sort by variable index
-        return (A - B) || (a - b);
-    });
+    // Preserve row order from the `basic` array so the display matches solver rows
 
     // generate table rows
     for(let idx of rowOrder){
@@ -277,10 +263,3 @@ function solveSimplex(){
     }
     resultArea.innerHTML += `<b>Z = ${toFraction(Z)}</b>`;
 } 
-
- 
-
-
-
-
-   
