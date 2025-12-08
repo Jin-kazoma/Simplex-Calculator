@@ -188,14 +188,25 @@ td:last-child, th:last-child {
 }
 
 @media (max-width: 480px) {
+    /* Make inputs and buttons full width on small phones */
     #inputsArea input, #optType {
-        width: 40px;
-        font-size: 0.85em;
-        margin: 2px;
+        width: 100%;
+        max-width: none;
+        font-size: 1em;
+        margin: 6px 0;
+        display: block;
+        box-sizing: border-box;
     }
     button {
-        padding: 6px 12px;
-        font-size: 0.8em;
+        padding: 10px 14px;
+        font-size: 1em;
+        width: 100%;
+        margin: 8px 0;
+    }
+    /* Allow table to shrink instead of forcing page zoom */
+    table {
+        min-width: 0;
+        width: 100%;
     }
     h3 { font-size: 1.2em; }
     h4 { font-size: 1em; }
