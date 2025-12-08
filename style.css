@@ -1,0 +1,202 @@
+/* ===============================
+   GENERAL BODY
+   =============================== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f4f8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    min-height: 100vh;
+    color: #333;
+}
+
+/* ===============================
+   HEADINGS
+   =============================== */
+h3 {
+    text-align: center;
+    margin-bottom: 12px;
+    color: #1a1a1a;
+    font-size: 1.5em;
+}
+
+h4 {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    font-size: 1.2em;
+    color: #444;
+}
+
+/* ===============================
+   INPUT AREA
+   =============================== */
+#inputsArea {
+    background: #fff;
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    text-align: center;
+    max-width: 900px;
+    width: 100%;
+}
+
+#inputsArea h3 {
+    margin-top: 0;
+}
+
+#inputsArea input, #optType {
+    width: 120px;
+    padding: 6px 8px;
+    margin: 4px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    text-align: center;
+    font-size: 1em;
+}
+
+/* ===============================
+   BUTTONS
+   =============================== */
+button {
+    padding: 10px 18px;
+    margin: 6px 5px;
+    border: none;
+    border-radius: 8px;
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+/* ===============================
+   RESULT AREA
+   =============================== */
+#resultArea {
+    background: #fff;
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 900px;
+    text-align: center;
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+/* ===============================
+   TABLE STYLING
+   =============================== */
+table {
+    margin: 15px auto;
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 400px;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+th, td {
+    padding: 10px 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.95em;
+}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* ===============================
+   HIGHLIGHT CLASSES
+   =============================== */
+.pivot-cell {
+    background-color: #ff9999;
+    font-weight: bold;
+    border: 2px solid #ff4d4d;
+    border-radius: 4px;
+}
+
+.entering-var {
+    color: #1a7f1a;
+    font-weight: bold;
+}
+
+.leaving-var {
+    color: #d60000;
+    font-weight: bold;
+}
+
+/* RHS and Ratio columns lightly shaded */
+td:last-child, th:last-child {
+    background-color: #f0f0f0;
+}
+
+/* ===============================
+   RESPONSIVE DESIGN
+   =============================== */
+@media (max-width: 1024px) {
+    #inputsArea, #resultArea {
+        width: 95%;
+        padding: 18px 20px;
+    }
+    #inputsArea input, #optType {
+        width: 50px;
+        font-size: 0.95em;
+        margin: 3px;
+    }
+    button {
+        padding: 9px 16px;
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 768px) {
+    table {
+        font-size: 0.85em;
+    }
+    #inputsArea input, #optType {
+        width: 45px;
+        font-size: 0.9em;
+        margin: 2px;
+    }
+    button {
+        padding: 8px 14px;
+        font-size: 0.85em;
+    }
+}
+
+@media (max-width: 480px) {
+    #inputsArea input, #optType {
+        width: 40px;
+        font-size: 0.85em;
+        margin: 2px;
+    }
+    button {
+        padding: 6px 12px;
+        font-size: 0.8em;
+    }
+    h3 { font-size: 1.2em; }
+    h4 { font-size: 1em; }
+}
