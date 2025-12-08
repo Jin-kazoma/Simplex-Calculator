@@ -1,4 +1,5 @@
-function $(id){
+
+   function $(id){
     return document.getElementById(id);
 }
 
@@ -77,9 +78,13 @@ function buildInputs(){
   //TABLEAU DISPLAY
 
 function createTableauHTML(T, basic, nVars, pivotCol, pivotRow, enteringVar, leavingVar){
-    let m = basic.length;
-    let rows = T.length;
-    let cols = T[0].length;
+    // Render tableau rows in the exact order of the solver's `basic` array (no reordering)
+    const m = basic.length;
+    const rows = T.length;
+    const cols = T[0].length;
+
+    function bvName(idx){ return (idx < nVars) ? varNames[idx] : `s${idx - nVars + 1}`; }
+    function toDecimal(num){ if(!isFinite(num)) return ""; if(Math.abs(num - Math.round(num)) < 1e-10) return String(Math.round(num)); return num.toFixed(6).replace(/\.?0+$/,''); }
 
     let table = "<table border='1' cellpadding='4'>";
     table += "<tr><th>BV</th>";
@@ -87,56 +92,43 @@ function createTableauHTML(T, basic, nVars, pivotCol, pivotRow, enteringVar, lea
     for(let j=0;j<m;j++) table += `<th>s${j+1}</th>`;
     table += "<th>RHS</th><th>Ratio</th></tr>";
 
-    // Helper to convert a basic index into a variable name
-    function bvName(idx){
-        if(typeof idx !== 'number' || isNaN(idx)) return '';
-        return (idx < nVars) ? varNames[idx] : `s${idx - nVars + 1}`;
+    // preserve solver row order, but display originals (x,y,...) before slacks (s1,s2,...)
+    // build a stable display order: keep the solver row sequence but move any rows whose
+    // basic variable is a non-slack before those that are slacks, preserving row relative order.
+    let originals = [];
+    let slacks = [];
+    for(let idx=0; idx<m; idx++){
+        let b = basic[idx];
+        if(typeof b === 'number' && b < nVars) originals.push(idx);
+        else slacks.push(idx);
     }
-
-    // Keep row order consistent with the current `basic` (BV) ordering
-    let rowOrder = [];
-    for(let i=0;i<m;i++) rowOrder.push(i);
-
-    // helper to format decimals for ratios (trim trailing zeros)
-    function toDecimal(num){
-        if(!isFinite(num)) return "";
-        if(Math.abs(num - Math.round(num)) < 1e-10) return String(Math.round(num));
-        let s = num.toFixed(6);
-        // remove trailing zeros and possible trailing decimal point
-        s = s.replace(/(?:\.0+|0+)$/, '');
-        return s;
-    }
-
-    // Preserve row order from the `basic` array so the display matches solver rows
-
-    // generate table rows
-    for(let idx of rowOrder){
+    let displayOrder = originals.concat(slacks);
+    for(let d=0; d<displayOrder.length; d++){
+        let idx = displayOrder[d];
         let bv = bvName(basic[idx]);
-        let bvStyle = (leavingVar === basic[idx]) ? "style='color:red; font-weight:bold'" : "";
-
+        let bvClass = (leavingVar === basic[idx]) ? 'leaving-var' : '';
         table += `<tr ${idx===pivotRow ? "style='background:#ffe6e6'" : ""}>`;
-        table += `<td ${bvStyle}>${bv}</td>`;
+        table += `<td ${bvClass?`class="${bvClass}"`:''}>${bv}</td>`;
 
         for(let j=0;j<cols;j++){
-            let style = "";
-            if(idx === pivotRow && j === pivotCol) style = "style='background:#ff9999'";
-            if(j === enteringVar) style = "style='color:green; font-weight:bold'";
-            table += `<td ${style}>${toFraction(T[idx][j])}</td>`;
+            let classes = [];
+            if(idx===pivotRow && j===pivotCol) classes.push('pivot-cell');
+            if(j===enteringVar) classes.push('entering-var');
+            let classAttr = classes.length ? `class="${classes.join(' ')}"` : '';
+            table += `<td ${classAttr}>${toFraction(T[idx][j])}</td>`;
         }
 
-        let ratio = "";
+        let ratio = '';
         if(pivotCol !== null && T[idx][pivotCol] > 0){
             ratio = toDecimal(T[idx][cols-1] / T[idx][pivotCol]);
         }
         table += `<td>${ratio}</td></tr>`;
     }
 
-    // Z row always last
+    // Z row
     table += "<tr><td>Z</td>";
-    for(let j=0;j<cols;j++)
-        table += `<td>${toFraction(T[rows-1][j])}</td>`;
+    for(let j=0;j<cols;j++) table += `<td>${toFraction(T[rows-1][j])}</td>`;
     table += "<td></td></tr>";
-
     table += "</table><br>";
     return table;
 }
@@ -263,3 +255,10 @@ function solveSimplex(){
     }
     resultArea.innerHTML += `<b>Z = ${toFraction(Z)}</b>`;
 } 
+
+ 
+
+
+
+
+   
