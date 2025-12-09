@@ -10,7 +10,24 @@ let inputsArea = $('inputsArea');
 let resultArea = $('resultArea');
 let optType = $('optType');
 
-const varNames = ["x", "y", "z", "w", "v", "u"];
+
+function getVarName(index){
+    const base = ["x", "y"];
+
+    if(index < 2) return base[index];
+
+    // after x and y, start powers: x², x³, y², y³, ...
+    let powerIndex = index - 2;
+    let variable = powerIndex % 2 === 0 ? "x" : "y";
+    let exponent = Math.floor(powerIndex / 2) + 2;
+
+    return variable + toSuperscript(exponent);
+}
+
+function toSuperscript(num){
+    const sup = {0:"⁰",1:"¹",2:"²",3:"³",4:"⁴",5:"⁵",6:"⁶",7:"⁷",8:"⁸",9:"⁹"};
+    return num.toString().split("").map(d => sup[d]).join("");
+}
 
 
   //DECIMAL → FRACTION
@@ -262,3 +279,4 @@ function solveSimplex(){
 
 
    
+
