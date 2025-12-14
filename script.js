@@ -261,17 +261,31 @@ resultArea.innerHTML += `] × ${toFraction(1/pivot)}<br><br>`;
 
                 
 
-        r
+        
         // Pivot operation
         let p = T[pivotRow][pivotCol];
         for(let j=0;j<cols;j++)
             T[pivotRow][j] /= p;
-
         for(let i=0;i<rows;i++){
+    if(i !== pivotRow){
+        let factor = T[i][pivotCol];
+        let rowName = (i === rows-1) ? "z-row" : `${bvName(basic[i])}-row`;
+
+        resultArea.innerHTML += `<b>${rowName}:</b><br>`;
+        resultArea.innerHTML += `[ `;
+        for(let j=0;j<cols;j++){
+            resultArea.innerHTML += `${toFraction(T[i][j])} `;
+        }
+        resultArea.innerHTML += `] − (${toFraction(factor)} × pivot row)<br><br>`;
+    }
+            }
+                                          
+
+       /* for(let i=0;i<rows;i++){
             if(i !== pivotRow){
                 let f = T[i][pivotCol];
                 for(let j=0;j<cols;j++){
-                    T[i][j] -= f * T[pivotRow][j];
+                    T[i][j] -= f * T[pivotRow][j];*/
                 }
             }
         }
@@ -299,3 +313,4 @@ resultArea.innerHTML += `] × ${toFraction(1/pivot)}<br><br>`;
            
 
             
+
