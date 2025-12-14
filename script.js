@@ -240,28 +240,62 @@ function solveSimplex(){
         //STEP4; PIVOT ELIMINATION
         //resultArea.innerHTML += "<b>Step:4 Pivotal Elimination</b><br>"
        // STEP 4: Pivotal Elimination (Detailed)
-resultArea.innerHTML += "<b>Step 4: Pivotal Elimination</b><br>";
+
+       
+       // STEP 4: Pivotal Elimination (SHOW SOLUTION)
+resultArea.innerHTML += "<b>Step 4: Pivotal Elimination</b><br><br>";
 
 let pivot = T[pivotRow][pivotCol];
+
+// Show pivot and reciprocal
 resultArea.innerHTML += `Pivot (k) = ${toFraction(pivot)}<br>`;
 resultArea.innerHTML += `1/k = ${toFraction(1/pivot)}<br><br>`;
 
-// Show pivot row calculation
-resultArea.innerHTML += `<b>Pivot Row (${bvName(leavingVar)}-row):</b><br>`;
+// ---- Show pivot row computation ----
+resultArea.innerHTML += `<b>Pivot Row:</b><br>`;
 resultArea.innerHTML += `[ `;
 for(let j=0;j<cols;j++){
     resultArea.innerHTML += `${toFraction(T[pivotRow][j])} `;
 }
 resultArea.innerHTML += `] × ${toFraction(1/pivot)}<br><br>`;
-       
-       
+
+// ---- Normalize pivot row ----
+for(let j=0;j<cols;j++){
+    T[pivotRow][j] /= pivot;
+}
+
+// ---- Show elimination on other rows ----
+for(let i=0;i<rows;i++){
+    if(i !== pivotRow){
+        let factor = T[i][pivotCol];
+        let rowName = (i === rows-1) ? "z-row" : "constraint-row";
+
+        resultArea.innerHTML += `<b>${rowName}:</b><br>`;
+        resultArea.innerHTML += `[ `;
+        for(let j=0;j<cols;j++){
+            resultArea.innerHTML += `${toFraction(T[i][j])} `;
+        }
+        resultArea.innerHTML += `] − (${toFraction(factor)} × pivot row)<br><br>`;
+    }
+}
+
+// ---- Perform row elimination ----
+for(let i=0;i<rows;i++){
+    if(i !== pivotRow){
+        let f = T[i][pivotCol];
+        for(let j=0;j<cols;j++){
+            T[i][j] -= f * T[pivotRow][j];
+        }
+    }
+}
+        
        
 
 
 
                 
 
-        
+    /*    
         // Pivot operation
         let p = T[pivotRow][pivotCol];
         for(let j=0;j<cols;j++)
@@ -289,6 +323,7 @@ resultArea.innerHTML += `] × ${toFraction(1/pivot)}<br><br>`;
                 }
             }
         }
+*/
 
         // Update BV
         basic[pivotRow] = pivotCol;
@@ -313,4 +348,5 @@ resultArea.innerHTML += `] × ${toFraction(1/pivot)}<br><br>`;
            
 
             
+
 
