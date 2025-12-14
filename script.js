@@ -1,5 +1,5 @@
-
-   function $(id){
+function $(id)
+{
     return document.getElementById(id);
 }
 
@@ -10,8 +10,17 @@ let inputsArea = $('inputsArea');
 let resultArea = $('resultArea');
 let optType = $('optType');
 
+//const varNames = ["x", "y", "z", "w", "v", "u"];
+function generateVarNames(n)
+{
+    const vars = [];
+    for(let i = 1; i <= n; i++){
+        vars.push(i === 1 ? "x" : `x<sup>${i}</sup>`);
+    }
+    return vars;
+}
 
-const varNames = ["x", "y", "z", "w", "v", "u"];
+
 
 
   //DECIMAL → FRACTION
@@ -55,6 +64,8 @@ function buildInputs(){
     const n = parseInt($("numVars").value);
     const m = parseInt($("numCons").value);
 
+    const varNames = generateVarNames(n);
+
     let html = "<h3>Objective Function</h3>";
     html += (optType.value === "max" ? "Maximize: " : "Minimize: ");
 
@@ -78,7 +89,9 @@ function buildInputs(){
 
   //TABLEAU DISPLAY
 
-function createTableauHTML(T, basic, nVars, pivotCol, pivotRow, enteringVar, leavingVar){
+function createTableauHTML(T, basic, nVars, pivotCol, pivotRow, enteringVar, leavingVar)
+{
+    const varNames = generateVarNames(nVars);
     // Render tableau rows in the exact order of the solver's `basic` array (no reordering)
     const m = basic.length;
     const rows = T.length;
@@ -108,12 +121,12 @@ function createTableauHTML(T, basic, nVars, pivotCol, pivotRow, enteringVar, lea
         let idx = displayOrder[d];
         let bv = bvName(basic[idx]);
         let bvClass = (leavingVar === basic[idx]) ? 'leaving-var' : '';
-        table += `<tr ${idx===pivotRow ? "style='background:#ffe6e6'" : ""}>`;
+        table += `<tr ${idx===pivotRow ? "style='background:#ffcccc'" : ""}>`;
         table += `<td ${bvClass?`class="${bvClass}"`:''}>${bv}</td>`;
 
         for(let j=0;j<cols;j++){
             let classes = [];
-            if(idx===pivotRow && j===pivotCol) classes.push('pivot-cell');
+            //if(idx===pivotRow && j===pivotCol) classes.push('pivot-cell');
             if(j===enteringVar) classes.push('entering-var');
             let classAttr = classes.length ? `class="${classes.join(' ')}"` : '';
             table += `<td ${classAttr}>${toFraction(T[idx][j])}</td>`;
@@ -142,6 +155,8 @@ function solveSimplex(){
 
     const n = parseInt($("numVars").value);
     const m = parseInt($("numCons").value);
+
+    const varNames = generateVarNames(n);
 
     let c = [];
     for(let j=0;j<n;j++)
@@ -222,6 +237,31 @@ function solveSimplex(){
         resultArea.innerHTML += `<h4>Tableau ${tableauNum}</h4>`;
         resultArea.innerHTML += createTableauHTML(T, basic, n, pivotCol, pivotRow, enteringVar, leavingVar);
 
+        //STEP4; PIVOT ELIMINATION
+        //resultArea.innerHTML += "<b>Step:4 Pivotal Elimination</b><br>"
+       // STEP 4: Pivotal Elimination (Detailed)
+resultArea.innerHTML += "<b>Step 4: Pivotal Elimination</b><br>";
+
+let pivot = T[pivotRow][pivotCol];
+resultArea.innerHTML += `Pivot (k) = ${toFraction(pivot)}<br>`;
+resultArea.innerHTML += `1/k = ${toFraction(1/pivot)}<br><br>`;
+
+// Show pivot row calculation
+resultArea.innerHTML += `<b>Pivot Row (${bvName(leavingVar)}-row):</b><br>`;
+resultArea.innerHTML += `[ `;
+for(let j=0;j<cols;j++){
+    resultArea.innerHTML += `${toFraction(T[pivotRow][j])} `;
+}
+resultArea.innerHTML += `] × ${toFraction(1/pivot)}<br><br>`;
+       
+       
+       
+
+
+
+                
+
+        r
         // Pivot operation
         let p = T[pivotRow][pivotCol];
         for(let j=0;j<cols;j++)
@@ -256,12 +296,6 @@ function solveSimplex(){
     }
     resultArea.innerHTML += `<b>Z = ${toFraction(Z)}</b>`;
 } 
+           
 
- 
-
-
-
-
-   
-
-
+            
