@@ -148,8 +148,119 @@ function createTableauHTML(T, basic, nVars, pivotCol, pivotRow, enteringVar, lea
 }
 
 
- // SIMPLEX SOLVER
+function solveSimplex() {
+    resultArea.innerHTML = "";
 
+    const n = parseInt($("numVars").value);
+    const m = parseInt($("numCons").value);
+
+    const varNames = generateVarNames(n);
+
+    let c = [];
+    for (let j = 0; j < n; j++)
+        c.push(parseFloat($(`c${j}`).value || 0));
+
+    if (optType.value === "min")
+        c = c.map(v => -v);
+
+    let A = Array.from({ length: m }, () => Array(n).fill(0));
+    let b = Array(m).fill(0);
+
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++)
+            A[i][j] = parseFloat($(`a_${i}_${j}`).value || 0);
+        b[i] = parseFloat($(`b_${i}`).value || 0);
+    }
+
+    const cols = n + m + 1;
+    const rows = m + 1;
+
+    let T = Array.from({ length: rows }, () => Array(cols).fill(0));
+    let basic = [];
+
+    // Initialize tableau
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++)
+            T[i][j] = A[i][j];
+
+        T[i][n + i] = 1;  // slack
+        T[i][cols - 1] = b[i];
+        basic.push(n + i);
+    }
+
+    for (let j = 0; j < n; j++)
+        T[rows - 1][j] = -c[j];
+
+    let tableauNum = 1;
+
+    while (true) {
+        let obj = T[rows - 1];
+        let pivotCol = -1;
+        let minVal = 0;
+
+        // Determine entering variable
+        for (let j = 0; j < cols - 1; j++) {
+            if (obj[j] < minVal) {
+                minVal = obj[j];
+                pivotCol = j;
+            }
+        }
+
+        if (pivotCol === -1) {
+            resultArea.innerHTML += `<h4>Tableau ${tableauNum} (Optimal)</h4>`;
+            resultArea.innerHTML += createTableauHTML(T, basic, n, null, null, null, null);
+            break;
+        }
+
+        // Determine leaving variable
+        let pivotRow = -1;
+        let best = Infinity;
+        for (let i = 0; i < m; i++) {
+            if (T[i][pivotCol] > 0) {
+                let r = T[i][cols - 1] / T[i][pivotCol];
+                if (r < best) {
+                    best = r;
+                    pivotRow = i;
+                }
+            }
+        }
+
+        if (pivotRow === -1) {
+            alert("Unbounded solution!");
+            return;
+        }
+
+        // Show dynamic step-by-step pivot calculations
+        showPivotStepDynamic(T, pivotRow, pivotCol, basic, n);
+
+        // Display updated tableau
+        resultArea.innerHTML += `<h4>Tableau ${tableauNum}</h4>`;
+        resultArea.innerHTML += createTableauHTML(T, basic, n, pivotCol, pivotRow, pivotCol, basic[pivotRow]);
+
+        tableauNum++;
+    }
+
+    // Extract solution
+    let sol = Array(n).fill(0);
+    for (let i = 0; i < m; i++) {
+        if (basic[i] < n)
+            sol[basic[i]] = T[i][cols - 1];
+    }
+
+    let Z = T[rows - 1][cols - 1];
+    if (optType.value === "min") Z = -Z;
+
+    resultArea.innerHTML += "<h3>Final Answer:</h3>";
+    for (let j = 0; j < n; j++) {
+        resultArea.innerHTML += `${varNames[j]} = ${toFraction(sol[j])}<br>`;
+    }
+    resultArea.innerHTML += `<b>Z = ${toFraction(Z)}</b>`;
+            }
+                
+
+        
+ // SIMPLEX SOLVER
+/*
 function solveSimplex(){
     resultArea.innerHTML = "";
 
@@ -286,4 +397,5 @@ function solveSimplex(){
         resultArea.innerHTML += `${varNames[j]} = ${toFraction(sol[j])}<br>`;
     }
     resultArea.innerHTML += `<b>Z = ${toFraction(Z)}</b>`;
-} 
+} */
+
