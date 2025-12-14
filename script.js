@@ -1,8 +1,9 @@
-// Helper functions
+// Helper function to get element
 function $(id) {
     return document.getElementById(id);
 }
 
+// Generate variable names dynamically
 function generateVarNames(n) {
     const vars = [];
     for (let i = 1; i <= n; i++) {
@@ -80,7 +81,7 @@ function showPivotStepDynamic(T, pivotRow, pivotCol, basic, nVars) {
     basic[pivotRow] = pivotCol;
 }
 
-// Create tableau HTML
+// Create HTML table of current tableau
 function createTableauHTML(T, basic, nVars, pivotCol, pivotRow, enteringVar, leavingVar) {
     const varNames = generateVarNames(nVars);
     const m = basic.length;
@@ -88,7 +89,6 @@ function createTableauHTML(T, basic, nVars, pivotCol, pivotRow, enteringVar, lea
     const cols = T[0].length;
 
     function bvName(idx) { return idx < nVars ? varNames[idx] : `s${idx - nVars + 1}`; }
-    function toDecimal(num) { if (!isFinite(num)) return ""; if (Math.abs(num - Math.round(num)) < 1e-10) return String(Math.round(num)); return num.toFixed(6).replace(/\.?0+$/, ''); }
 
     let table = "<table border='1' cellpadding='4'>";
     table += "<tr><th>BV</th>";
@@ -96,8 +96,7 @@ function createTableauHTML(T, basic, nVars, pivotCol, pivotRow, enteringVar, lea
     for (let j = 0; j < m; j++) table += `<th>s${j + 1}</th>`;
     table += "<th>RHS</th><th>Ratio</th></tr>";
 
-    for (let d = 0; d < m; d++) {
-        let idx = d;
+    for (let idx = 0; idx < m; idx++) {
         let bv = bvName(basic[idx]);
         table += `<tr ${idx === pivotRow ? "style='background:#ffcccc'" : ""}>`;
         table += `<td>${bv}</td>`;
@@ -108,7 +107,7 @@ function createTableauHTML(T, basic, nVars, pivotCol, pivotRow, enteringVar, lea
             table += `<td ${classAttr}>${toFraction(T[idx][j])}</td>`;
         }
         let ratio = '';
-        if (pivotCol !== null && T[idx][pivotCol] > 0) ratio = toDecimal(T[idx][cols - 1] / T[idx][pivotCol]);
+        if (pivotCol !== null && T[idx][pivotCol] > 0) ratio = (T[idx][cols - 1] / T[idx][pivotCol]).toFixed(6);
         table += `<td>${ratio}</td></tr>`;
     }
 
@@ -119,7 +118,32 @@ function createTableauHTML(T, basic, nVars, pivotCol, pivotRow, enteringVar, lea
     return table;
 }
 
-// Main Simplex solver with dynamic step-by-step output
+// Generate input fields
+function buildInputs() {
+    const n = parseInt($("numVars").value);
+    const m = parseInt($("numCons").value);
+    const varNames = generateVarNames(n);
+
+    let html = "<h3>Objective Function</h3>";
+    html += optType.value === "max" ? "Maximize: " : "Minimize: ";
+    for (let j = 0; j < n; j++) {
+        html += `<input id="c${j}" type="number" step="any"> ${varNames[j]}`;
+        if (j < n - 1) html += " + ";
+    }
+
+    html += "<h3>Constraints (≤)</h3>";
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+            html += `<input id="a_${i}_${j}" type="number" step="any"> ${varNames[j]}`;
+            if (j < n - 1) html += " + ";
+        }
+        html += ` ≤ <input id="b_${i}" type="number" step="any"><br>`;
+    }
+
+    inputsArea.innerHTML = html; // Only inputs, buttons are outside
+}
+
+// Main Simplex Solver
 function solveSimplex() {
     resultArea.innerHTML = "";
 
@@ -128,36 +152,29 @@ function solveSimplex() {
     const varNames = generateVarNames(n);
 
     let c = [];
-    for (let j = 0; j < n; j++)
-        c.push(parseFloat($(`c${j}`).value || 0));
-
-    if (optType.value === "min")
-        c = c.map(v => -v);
+    for (let j = 0; j < n; j++) c.push(parseFloat($(`c${j}`).value || 0));
+    if (optType.value === "min") c = c.map(v => -v);
 
     let A = Array.from({ length: m }, () => Array(n).fill(0));
     let b = Array(m).fill(0);
     for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n; j++)
-            A[i][j] = parseFloat($(`a_${i}_${j}`).value || 0);
+        for (let j = 0; j < n; j++) A[i][j] = parseFloat($(`a_${i}_${j}`).value || 0);
         b[i] = parseFloat($(`b_${i}`).value || 0);
     }
 
     const cols = n + m + 1;
     const rows = m + 1;
-
     let T = Array.from({ length: rows }, () => Array(cols).fill(0));
     let basic = [];
 
     for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n; j++)
-            T[i][j] = A[i][j];
+        for (let j = 0; j < n; j++) T[i][j] = A[i][j];
         T[i][n + i] = 1;
         T[i][cols - 1] = b[i];
         basic.push(n + i);
     }
 
-    for (let j = 0; j < n; j++)
-        T[rows - 1][j] = -c[j];
+    for (let j = 0; j < n; j++) T[rows - 1][j] = -c[j];
 
     let tableauNum = 1;
 
@@ -195,7 +212,7 @@ function solveSimplex() {
             return;
         }
 
-        // Step-by-step pivot calculations
+        // Step-by-step pivot
         showPivotStepDynamic(T, pivotRow, pivotCol, basic, n);
 
         // Display updated tableau
@@ -207,18 +224,27 @@ function solveSimplex() {
 
     // Extract solution
     let sol = Array(n).fill(0);
-    for (let i = 0; i < m; i++) {
-        if (basic[i] < n)
-            sol[basic[i]] = T[i][cols - 1];
-    }
-
+    for (let i = 0; i < m; i++) if (basic[i] < n) sol[basic[i]] = T[i][cols - 1];
     let Z = T[rows - 1][cols - 1];
     if (optType.value === "min") Z = -Z;
 
     resultArea.innerHTML += "<h3>Final Answer:</h3>";
-    for (let j = 0; j < n; j++) {
-        resultArea.innerHTML += `${varNames[j]} = ${toFraction(sol[j])}<br>`;
-    }
+    for (let j = 0; j < n; j++) resultArea.innerHTML += `${varNames[j]} = ${toFraction(sol[j])}<br>`;
     resultArea.innerHTML += `<b>Z = ${toFraction(Z)}</b>`;
 }
-    
+
+// Attach button events
+let buildBtn = $('build');
+let solveBtn = $('solve');
+let resetBtn = $('reset');
+let inputsArea = $('inputsArea');
+let resultArea = $('resultArea');
+let optType = $('optType');
+
+buildBtn.onclick = buildInputs;
+solveBtn.onclick = solveSimplex;
+resetBtn.onclick = () => {
+    inputsArea.innerHTML = "";
+    resultArea.innerHTML = "";
+};
+            
