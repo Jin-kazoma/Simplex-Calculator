@@ -154,6 +154,45 @@ td:last-child, th:last-child {
 }
 
 /* ===============================
+   PIVOT ELIMINATION STYLING
+   =============================== */
+
+.pivot-elimination {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 10px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    text-align: left;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.pivot-elimination b {
+    font-weight: bold;
+    color: #333;
+    font-size: 1em;
+}
+
+.pivot-elimination .subheading {
+    font-weight: bold;
+    color: #4CAF50;
+    margin-top: 10px;
+    display: block;
+}
+
+.pivot-elimination .calc {
+    margin-left: 20px;
+    color: #555;
+}
+
+
+/* ===============================
    RESPONSIVE DESIGN
    =============================== */
 @media (max-width: 1024px) {
